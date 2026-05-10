@@ -17,11 +17,10 @@ set(WINDOWS_LIBS_DIR "${CMAKE_SOURCE_DIR}/Windows")
 # Добавляем пути поиска библиотек
 link_directories(${WINDOWS_LIBS_DIR})
 
-# Добавляем пути поиска заголовочных файлов (если есть в папке Windows)
-# Если SFML установлен отдельно, раскомментируйте и укажите правильный путь
+# Добавляем пути поиска заголовочных файлов 
 # include_directories("C:/SFML/include")
 
-# Определяем библиотеки SFML (debug версии, судя по именам файлов)
+# Определяем библиотеки SFML 
 set(SFML_LIBRARIES
     sfml-graphics-d-2
     sfml-window-d-2
@@ -36,7 +35,6 @@ target_link_libraries(${EXECUTABLE_NAME}
 # Добавляем определения для использования debug версий SFML
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE SFML_STATIC)
 
-# Копируем все необходимые DLL в папку с исполняемым файлом
 # Создаем список DLL файлов для копирования
 set(DLL_FILES
     ${WINDOWS_LIBS_DIR}/sfml-graphics-d-2.dll
