@@ -1,71 +1,78 @@
-cmake_minimum_required(VERSION 3.10)
-project(LabZ8sem TreeLinkedlist)
+cmake_minimum_required(VERSION 3.16)
+project(Tree-Linkedlist VERSION 1.0 LANGUAGES CXX)
 
-# Устанавливаем стандарт C++
+# Стандарт C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Устанавливаем имя исполняемого файла
-set(EXECUTABLE_NAME "TreeLinkedlist")
+# Оптимизации для Release
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-O3 -march=native)
+    endif()
+endif()
 
-# Создаем исполняемый файл из main.cpp
-add_executable(${EXECUTABLE_NAME} main.cpp)
+# Поиск SFML
+find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
 
-# Определяем путь к папке с библиотеками Windows
-set(WINDOWS_LIBS_DIR "${CMAKE_SOURCE_DIR}/Windows")
+# Создаем исполняемый файл
+add_executable(${PROJECT_NAME} main.cpp)
 
-# Добавляем пути поиска библиотек
-link_directories(${WINDOWS_LIBS_DIR})
-
-# Добавляем пути поиска заголовочных файлов 
-# include_directories("C:/SFML/include")
-
-# Определяем библиотеки SFML 
-set(SFML_LIBRARIES
-    sfml-graphics-d-2
-    sfml-window-d-2
-    sfml-system-d-2
+# Подключаем SFML
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    sfml-graphics
+    sfml-window
+    sfml-system
 )
 
-# Связываем библиотеки с проектом
-target_link_libraries(${EXECUTABLE_NAME}
-    ${SFML_LIBRARIES}
-)
-
-# Добавляем определения для использования debug версий SFML
-target_compile_definitions(${EXECUTABLE_NAME} PRIVATE SFML_STATIC)
-
-# Создаем список DLL файлов для копирования
-set(DLL_FILES
-    ${WINDOWS_LIBS_DIR}/sfml-graphics-d-2.dll
-    ${WINDOWS_LIBS_DIR}/sfml-window-d-2.dll
-    ${WINDOWS_LIBS_DIR}/sfml-system-d-2.dll
-    ${WINDOWS_LIBS_DIR}/msvcp140.dll
-    ${WINDOWS_LIBS_DIR}/msvcp140d.dll
-    ${WINDOWS_LIBS_DIR}/vcruntime140.dll
-    ${WINDOWS_LIBS_DIR}/vcruntime140d.dll
-    ${WINDOWS_LIBS_DIR}/vcruntime140_1d.dll
-    ${WINDOWS_LIBS_DIR}/ucrtbased.dll
-    ${WINDOWS_LIBS_DIR}/arialmt
-)
-
-# Копируем DLL после сборки
-add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>
-    COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL files..."
-)
-
-# Добавляем команды копирования для каждого файла
-foreach(DLL_FILE ${DLL_FILES})
-    if(EXISTS ${DLL_FILE})
-        add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+# Linux специфичные настройки
+if(UNIX AND NOT APPLE)
+    # Устанавливаем RPATH для поиска библиотек
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        INSTALL_RPATH "$ORIGIN/lib"
+        BUILD_WITH_INSTALL_RPATH FALSE
+    )
+    
+    # Копируем шрифт если существует
+    if(EXISTS "${CMAKE_SOURCE_DIR}/arialmt.ttf")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${DLL_FILE}
-                $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>
+                "${CMAKE_SOURCE_DIR}/arialmt.ttf"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>
         )
     endif()
-endforeach()
+    
+    # Создаем скрипт запуска
+    configure_file(
+        "${CMAKE_SOURCE_DIR}/run_linux.sh.in"
+        "${CMAKE_BINARY_DIR}/run.sh"
+        @ONLY
+    )
+    execute_process(COMMAND chmod +x "${CMAKE_BINARY_DIR}/run.sh")
+endif()
 
-# Выводим информацию о сборке
+# Windows специфичные настройки
+if(WIN32)
+    # Копируем шрифт
+    if(EXISTS "${CMAKE_SOURCE_DIR}/arialmt.ttf")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${CMAKE_SOURCE_DIR}/arialmt.ttf"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        )
+    endif()
+    
+    # Копируем DLL
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND_EXPAND_LISTS
+    )
+endif()
+
+# Вывод информации
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "Executable will be created in: ${CMAKE_BINARY_DIR}")
+message(STATUS "System: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "SFML found: ${SFML_FOUND}")
+message(STATUS "Executable: ${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
