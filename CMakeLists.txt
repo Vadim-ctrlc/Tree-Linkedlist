@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
-project(LabZ8sem Tree-Linkedlist)
+project(LabZ8sem TreeLinkedlist)
 
 # Устанавливаем стандарт C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Устанавливаем имя исполняемого файла
-set(EXECUTABLE_NAME "Tree-Linkedlist")
+set(EXECUTABLE_NAME "TreeLinkedlist")
 
 # Создаем исполняемый файл из main.cpp
 add_executable(${EXECUTABLE_NAME} main.cpp)
