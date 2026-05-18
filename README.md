@@ -14,46 +14,62 @@
 
 ## Инструкция по сборке
 
-Проект содержит скрипты, которые автоматически скачивают и собирают SFML, а затем компилируют код.
 
 ### Windows
 
-1. Откройте командную строку (cmd) или PowerShell в папке проекта.
-2. Соберите библиотеки SFML (выполняется один раз):
+1. Откройте командную строку (cmd) или PowerShell в папке проекта:
+2. Создайте и перейдите в папку build:
 ```cmd
-scripts\build_sfml.bat
+mkdir build
+cd build
 ```
-3. Соберите сам проект (Release версия):
+3. Настройте CMake:
 ```cmd
-scripts\build.bat
+cmake .. -G "Visual Studio 17 2022" -A x64
 ```
-4. Запустите приложение:
+4. Соберите приложение:
 ```cmd
-build\Release\Tree-Linkedlist.exe
-```
-
-### Linux (Ubuntu/Debian)
-
-1. Установите необходимые пакеты для компиляции:
-```cmd
-sudo apt update && sudo apt install -y build-essential cmake git libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfreetype6-dev libopenal-dev libflac-dev libvorbis-dev libudev-dev
-```
-2. Сделайте скрипты исполняемыми:
-```cmd
-chmod +x scripts/*.sh
-```
-3. Соберите библиотеки SFML (выполняется один раз):
-```cmd
-./scripts/build_sfml.sh
-```
-4. Соберите проект:
-```cmd
-./scripts/build.sh
+cmake --build . --config Release
 ```
 5. Запустите приложение:
 ```cmd
-./scripts/run.sh
+cd Release
+.\TreeLinkedlist.exe
 ```
+
+
+### Linux (Ubuntu/Debian)
+
+1. Установите необходимые зависимости:
+```cmd
+sudo apt update & sudo apt install -y build-essential cmake git \
+    libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+    libgl1-mesa-dev libfreetype6-dev libopenal-dev \
+    libflac-dev libvorbis-dev libudev-dev
+```
+2. Перейдите в папку проекта:
+```cmd
+cd /путь/к/Tree-Linkedlist
+```
+3. Создайте папку build:
+```cmd
+mkdir build && cd build
+```
+4. Настройте CMake:
+```cmd
+cmake .. -DCMAKE_BUILD_TYPE=Release
+```
+5. Соберите приложение:
+```cmd
+cmake --build . -j$(nproc)
+```
+6. Запустите приложение:
+```cmd
+./TreeLinkedlist
+```
+
+
+
 ---
 
 ## Инструкция пользователя:
